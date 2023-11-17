@@ -2019,7 +2019,7 @@ def main():
                 ug_names = list()
                 found_default_user_groups = list()
                 non_standard_ug_codes = list()
-                standard_ug_required_codes = ["ADMIN", "ACCESS", "DATA_CAPTURE"]
+                standard_ug_required_codes = ["ADMIN", "ACCESS", "CAPTURE"]
                 for ug in metadata[metadata_type]:
                     userGroups_uids.append(ug['id'])
                     userGroups_codes[ug['id']] = ug['code']
@@ -2041,7 +2041,7 @@ def main():
                         count_standard_naming_ug |= 4  # Set third bit to 1
                     elif ug_default_code == package_prefix + "_ACCESS":
                         count_standard_naming_ug |= 2  # Set second bit to 1
-                    elif ug_default_code == package_prefix + "_DATA_CAPTURE":
+                    elif ug_default_code == package_prefix + "_CAPTURE":
                         count_standard_naming_ug |= 1  # Set first bit to 1
                 if count_standard_naming_ug != 7:  # First 3 bits are not 1 1 1?
                     logger.warning(
@@ -2432,13 +2432,8 @@ def main():
                 metadata_filters["organisationUnitGroupSets"] = "organisationUnitGroups.id:in:[" + ','.join(
                     organisationUnitGroups_uids) + "]"
 
-        # Release log handlers
-        handlers = logger.handlers[:]
-        for handler in handlers:
-            handler.close()
-            logger.removeHandler(handler)
-
         if total_errors != 0:
+            logger.error("Total errors were more than 1. Check logs, fix them and rerun the script")
             return None
 
         # Write metadata_object
@@ -2463,6 +2458,12 @@ def main():
 
         # for debug - and potential use in pipeline
         print(name_label + '.json')
+
+        # Release log handlers
+        handlers = logger.handlers[:]
+        for handler in handlers:
+            handler.close()
+            logger.removeHandler(handler)
 
     return name_label + '.json'
 
